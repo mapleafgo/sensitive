@@ -106,7 +106,7 @@ func (filter *Filter) FindIn(text string) (bool, string) {
 }
 
 // FindAll 找到所有匹配词
-func (filter *Filter) FindAll(text string) []string {
+func (filter *Filter) FindAll(text string) []map[int]string {
 	filter.updateFailureLink()
 	return filter.trie.FindAll(text)
 }

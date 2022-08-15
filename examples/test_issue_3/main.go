@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/importcjj/sensitive"
+
+	"mapleafgo.cn/sensitive"
 )
 
 func keywordFilterSearch(content string) (bool, string) {

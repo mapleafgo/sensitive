@@ -165,18 +165,18 @@ func TestSensitiveFindAll(t *testing.T) {
 
 	testcases := []struct {
 		Text   string
-		Expect []string
+		Expect []map[int]string
 	}{
-		{"我有一个东东西", []string{"一个", "个东", "东西"}},
-		{"我有一个东西", []string{"有一个东西", "一个", "一个东西", "个东", "东西"}},
-		{"一个东西", []string{"一个", "一个东西", "个东", "东西"}},
-		{"两个东西", []string{"个东", "东西"}},
-		{"一个物体", []string{"一个"}},
+		{"我有一个东东西", []map[int]string{{2: "一个"}, {3: "个东"}, {5: "东西"}}},
+		{"我有一个东西", []map[int]string{{1: "有一个东西"}, {2: "一个"}, {2: "一个东西"}, {3: "个东"}, {4: "东西"}}},
+		{"一个东西", []map[int]string{{0: "一个"}, {0: "一个东西"}, {1: "个东"}, {2: "东西"}}},
+		{"两个东西", []map[int]string{{1: "个东"}, {2: "东西"}}},
+		{"一个物体", []map[int]string{{0: "一个"}}},
 	}
 
 	for _, tc := range testcases {
-		if got := filter.FindAll(tc.Text); !reflect.DeepEqual(listToMap(tc.Expect), listToMap(got)) {
-			t.Errorf("findall %s, got %s, expect %s", tc.Text, got, tc.Expect)
+		if got := filter.FindAll(tc.Text); !reflect.DeepEqual(tc.Expect, got) {
+			t.Errorf("findall %s, got %v, expect %v", tc.Text, got, tc.Expect)
 		}
 	}
 }
@@ -193,8 +193,8 @@ func TestSensitiveFindallSingleword(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		if got := filter.FindAll(tc.Text); !reflect.DeepEqual(listToMap(tc.Expect), listToMap(got)) {
-			t.Fatalf("findall %s, got %s, expect %s", tc.Text, got, tc.Expect)
+		if got := filter.FindAll(tc.Text); !reflect.DeepEqual(tc.Expect, got) {
+			t.Fatalf("findall %s, got %v, expect %v", tc.Text, got, tc.Expect)
 		}
 	}
 

@@ -7,13 +7,14 @@ type Trie struct {
 
 // Node Trie树上的一个节点.
 type Node struct {
-	isRootNode bool
-	isPathEnd  bool
-	Character  rune
-	Children   map[rune]*Node
-	Failure    *Node
-	Parent     *Node
-	depth      int
+	isRootNode bool           // 标记是否是根节点
+	isPathEnd  bool           // 是否是词语的结尾
+	isEscape   bool           // 是否转义
+	Character  rune           // 节点的字符
+	Children   map[rune]*Node // 子节点
+	Failure    *Node          // 失败指针
+	Parent     *Node          // 父节点
+	depth      int            // 深度
 }
 
 // BuildFailureLinks 更新Aho-Corasick的失败表
@@ -76,19 +77,31 @@ func (tree *Trie) Add(words ...string) {
 func (tree *Trie) add(word string) {
 	var current = tree.Root
 	var runes = []rune(word)
+
+	// 判断是否转义
+	var isEscape = false
 	for position := 0; position < len(runes); position++ {
 		r := runes[position]
-		if next, ok := current.Children[r]; ok {
+		if position+1 != len(runes) && r == '\\' && runes[position+1] == '_' {
+			isEscape = true
+			continue
+		}
+
+		if next, ok := current.Children[r]; ok && next.isEscape == isEscape {
 			current = next
 		} else {
 			newNode := NewNode(r)
 			newNode.depth = current.depth + 1
 			newNode.Parent = current
+			newNode.isEscape = isEscape
 			current.Children[r] = newNode
 			current = newNode
 		}
+
 		if position == len(runes)-1 {
 			current.isPathEnd = true
+		} else {
+			isEscape = false
 		}
 	}
 }
@@ -101,7 +114,7 @@ func (tree *Trie) Replace(text string, character rune) string {
 		runes = []rune(text)
 	)
 
-	var ac = new(ac)
+	var ac = new(Ac)
 	for position := 0; position < len(runes); position++ {
 		next = ac.next(node, runes[position])
 		if next == nil {
@@ -158,7 +171,7 @@ func (tree *Trie) Validate(text string) (bool, string) {
 		runes = []rune(text)
 	)
 
-	var ac = new(ac)
+	var ac = new(Ac)
 	for position := 0; position < len(runes); position++ {
 		next = ac.next(node, runes[position])
 		if next == nil {
@@ -181,14 +194,14 @@ func (tree *Trie) FindIn(text string) (bool, string) {
 }
 
 // FindAll 找有所有包含在词库中的词
-func (tree *Trie) FindAll(text string) []string {
+func (tree *Trie) FindAll(text string) []map[int]string {
 	var (
 		node  = tree.Root
 		next  *Node
 		runes = []rune(text)
 	)
 
-	var ac = new(ac)
+	var ac = new(Ac)
 	for position := 0; position < len(runes); position++ {
 		next = ac.next(node, runes[position])
 		if next == nil {
@@ -200,7 +213,6 @@ func (tree *Trie) FindAll(text string) []string {
 	}
 
 	return ac.results
-
 }
 
 // NewNode 新建子节点
@@ -238,4 +250,9 @@ func (node *Node) IsRootNode() bool {
 // IsPathEnd 判断是否为某个路径的结束
 func (node *Node) IsPathEnd() bool {
 	return node.isPathEnd
+}
+
+// IsEscape 判断是否转义
+func (node *Node) IsEscape() bool {
+	return node.isEscape
 }
