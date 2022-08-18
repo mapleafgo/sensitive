@@ -41,6 +41,7 @@ func Start() error {
 	// 初始化服务
 	gin.SetMode(viper.GetString("mode"))
 	r := gin.Default()
+	r.Use(CheckAndPrint())
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
