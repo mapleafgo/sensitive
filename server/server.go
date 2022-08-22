@@ -82,7 +82,7 @@ func Start() error {
 }
 
 type wordReq struct {
-	Word string `json:"word"`
+	Words []string `json:"words"`
 }
 
 // addWord 添加敏感词
@@ -95,7 +95,7 @@ func addWord(c *gin.Context) {
 		})
 		return
 	}
-	filter.AddWord(req.Word)
+	filter.AddWord(req.Words...)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})
@@ -111,7 +111,7 @@ func removeWord(c *gin.Context) {
 		})
 		return
 	}
-	filter.RemoveWord(req.Word)
+	filter.RemoveWord(req.Words...)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})

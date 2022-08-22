@@ -5,7 +5,7 @@ const commonChar = '_'
 
 // Ac 自动机
 type Ac struct {
-	results []map[int]string
+	results []map[int][]string
 }
 
 func (ac *Ac) fail(node *Node, c rune) *Node {
@@ -43,7 +43,15 @@ func (ac *Ac) output(node *Node, runes []rune, position int) {
 	}
 
 	if node.IsPathEnd() {
-		ac.results = append(ac.results, map[int]string{position + 1 - node.depth: string(runes[position+1-node.depth : position+1])})
+		word := string(runes[position+1-node.depth : position+1])
+		originWord := node.OriginWord()
+
+		resultWord := []string{word}
+		if word != originWord {
+			resultWord = append(resultWord, originWord)
+		}
+
+		ac.results = append(ac.results, map[int][]string{position + 1 - node.depth: resultWord})
 	}
 
 	ac.output(node.Failure, runes, position)

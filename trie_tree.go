@@ -1,5 +1,7 @@
 package sensitive
 
+import "github.com/samber/lo"
+
 // Trie 短语组成的Trie树.
 type Trie struct {
 	Root *Node
@@ -240,7 +242,7 @@ func (tree *Trie) FindIn(text string) (bool, string) {
 }
 
 // FindAll 找有所有包含在词库中的词
-func (tree *Trie) FindAll(text string) []map[int]string {
+func (tree *Trie) FindAll(text string) []map[int][]string {
 	var (
 		node  = tree.Root
 		next  *Node
@@ -301,4 +303,17 @@ func (node *Node) IsPathEnd() bool {
 // IsEscape 判断是否转义
 func (node *Node) IsEscape() bool {
 	return node.isEscape
+}
+
+// OriginWord 获取原始词
+func (node *Node) OriginWord() string {
+	return string(lo.Reverse[rune](node.originWord()))
+}
+
+// originWord 获取原始词
+func (node *Node) originWord() []rune {
+	if node.isRootNode {
+		return []rune{}
+	}
+	return append([]rune{node.Character}, node.Parent.originWord()...)
 }
