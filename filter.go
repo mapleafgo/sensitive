@@ -86,6 +86,12 @@ func (filter *Filter) AddWord(words ...string) {
 	filter.updatedVer = time.Now().UnixNano()
 }
 
+// RemoveWord 移除敏感词
+func (filter *Filter) RemoveWord(words ...string) {
+	filter.trie.Remove(words...)
+	filter.updatedVer = time.Now().UnixNano()
+}
+
 // Filter 过滤敏感词
 func (filter *Filter) Filter(text string) string {
 	filter.updateFailureLink()

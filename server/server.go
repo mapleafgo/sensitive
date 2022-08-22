@@ -48,6 +48,7 @@ func Start() error {
 		})
 	})
 	r.POST("/add-word", addWord)
+	r.POST("/remove-word", removeWord)
 	r.POST("/filter", filterAll)
 
 	srv := &http.Server{
@@ -80,13 +81,13 @@ func Start() error {
 	return nil
 }
 
-type addWordReq struct {
+type wordReq struct {
 	Word string `json:"word"`
 }
 
 // addWord 添加敏感词
 func addWord(c *gin.Context) {
-	var req addWordReq
+	var req wordReq
 	err := c.BindJSON(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -95,6 +96,22 @@ func addWord(c *gin.Context) {
 		return
 	}
 	filter.AddWord(req.Word)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
+
+// removeWord 移除敏感词
+func removeWord(c *gin.Context) {
+	var req wordReq
+	err := c.BindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	filter.RemoveWord(req.Word)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})

@@ -106,6 +106,52 @@ func (tree *Trie) add(word string) {
 	}
 }
 
+// Remove 移除若干个词
+func (tree *Trie) Remove(words ...string) {
+	for _, word := range words {
+		tree.remove(word)
+	}
+}
+
+// remove 移除过滤词
+func (tree *Trie) remove(word string) {
+	var current = tree.Root
+	var runes = []rune(word)
+
+	// 判断是否转义
+	var isEscape = false
+	for position := 0; position < len(runes); position++ {
+		r := runes[position]
+		if position+1 != len(runes) && r == '\\' && runes[position+1] == '_' {
+			isEscape = true
+			continue
+		}
+
+		if next, ok := current.Children[r]; ok && next.isEscape == isEscape {
+			current = next
+		} else {
+			return
+		}
+
+		if position == len(runes)-1 {
+			if current.isPathEnd {
+				current.isPathEnd = false
+				tree.removeLeafNode(current)
+			}
+		} else {
+			isEscape = false
+		}
+	}
+}
+
+// removeLeafNode 移除孤儿节点
+func (tree *Trie) removeLeafNode(node *Node) {
+	if node.IsLeafNode() && !node.isPathEnd {
+		delete(node.Parent.Children, node.Character)
+		tree.removeLeafNode(node.Parent)
+	}
+}
+
 // Replace 词语替换
 func (tree *Trie) Replace(text string, character rune) string {
 	var (
